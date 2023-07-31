@@ -1,0 +1,19 @@
+services:
+  whether:
+    container_name: whether
+    env_file:
+      - app/.env.secure
+    build:
+      context: ../
+      dockerfile: deploy/app/Dockerfile
+    volumes:
+      - ../:/app
+    networks:
+      - outsider
+#    todo delete
+    environment:
+      APP_GRPC_SERVER_ADDRESS: "0.0.0.0:5000"
+
+networks:
+  outsider:
+    external: true
