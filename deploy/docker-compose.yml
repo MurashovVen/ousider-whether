@@ -1,0 +1,36 @@
+services:
+  whether:
+    env_file:
+      - app/.env
+      - app/.env.secure
+    build:
+      context: ../
+      dockerfile: deploy/app/Dockerfile
+    volumes:
+      - ../:/app
+    networks:
+      - outsider
+    depends_on:
+      whether-mongo:
+        condition: service_healthy
+
+  whether-mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: username
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - outsider
+
+networks:
+  outsider:
+    external: true
